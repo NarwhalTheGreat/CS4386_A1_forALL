@@ -68,39 +68,46 @@ class AIPlayer(object):
     def calc_change(self, state, x, y):
         score = 0
         #Check horizontal
-        right_count = x
-        left_count = x
+        right_count = x + 1
+        left_count = x - 1
+        hor_streak = 0
         while right_count < 5:
-            if (state[right_count + 1][y] != None):
+            if (state[right_count][y] != None):
+                hor_streak += 1
                 right_count += 1
             else:
                 break
         while left_count >= 0:
-            if (state[left_count - 1][y] != None):
+            if (state[left_count][y] != None):
                 left_count -= 1
+                hor_streak += 1
             else:
                 break
-        if (right_count - left_count) == 6:
+        if hor_streak == 6:
             score += 6
-        elif (right_count - left_count) > 2:
+        elif hor_streak > 2:
             score += 3
 
         # Check vertical
-        bottom_count = y
-        top_count = y
+        bottom_count = y + 1
+        top_count = y - 1
+        ver_streak = 0
         while bottom_count < 5:
-            if (state[x][bottom_count + 1] != None):
+            if (state[x][bottom_count] != None):
                 bottom_count += 1
+                ver_streak += 1
             else:
                 break
         while top_count >= 0:
-            if (state[x][top_count - 1] != None):
+            if (state[x][top_count] != None):
                 top_count -= 1
+                ver_streak += 1
+
             else:
                 break
-        if (bottom_count - top_count) == 6:
+        if ver_streak == 5:
             score += 6
-        elif (bottom_count - top_count) > 2:
+        elif ver_streak > 1:
             score += 3
 
         return score
