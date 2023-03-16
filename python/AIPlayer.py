@@ -10,6 +10,9 @@ import random
 import numpy as np
 
 
+# Importing function from game to check score changes
+
+
 class AIPlayer(object):
     def __init__(self, name, symbole, isAI=False):
         self.name = name
@@ -47,72 +50,22 @@ class AIPlayer(object):
     def get_move(self, state, player):
         print(player)
         games = self.get_valid_moves(self.available_cells(state, player), player)
-        random_choice = random.choice(games)
-
-        best_score, best_move = self.negamax(state, 1, 0, player, None)
-
-        #if all else fails, just give us a random one
-
-        print(best_score)
-        print(best_move)
-        return best_move
-
-    #Algorithm to perform negamax search to determine best move. Assumes player never makes the wrong move
-    def negamax(self, state, max_depth, current_depth, player, current_move):
-        #Get list of possible moves from the state we are working with
-        games = self.get_valid_moves(self.available_cells(state, player), player)
-
-        #If game is over (no more moves left) or max depth is reached, bubble up
-        if ((len(games) == 0) or (max_depth == current_depth)):
-            return self.calc_change(state, current_move), None
-
-
-        best_move = None
-        best_score = -infinity
-
-        if player == "X":
-            player = "O"
-        else:
-            player = "X"
-
-        for move in games:
-            new_state = self.simulate_move(state, move, player)
-            print(new_state)
-            recursed_score, current_move = self.negamax(new_state, max_depth, current_depth + 1, player, move)
-            current_score = -recursed_score
-            if current_score > best_score:
-                best_score = current_score
-                best_move = move
-
-        return best_score, best_move
-
-
-    #Simulates a move on a state, chaning the board
-    def simulate_move(self, state, move, player):
-        if (player == "X"):
-            state[move[0]][move[1]] = "X"
-        else:
-            state[move[0]][move[1]] = "O"
-        return state
-
-    #finds best move out of set of moves and with a state of board as context
-    def best_move(self, games, state):
-        best_score = 0
-        best_move = [0, 0]
+        top_result = 0
+        top_move = [0, 0]
         for i in range(len(games)):
-            this_move_result = self.calc_change(state, games[i])
+            this_move_result = self.calc_change(state, games[i][0], games[i][1])
+            print(games[i][0], games[i][1])
+            print(this_move_result)
 
-            if this_move_result > best_score:
-                best_score = this_move_result
-                best_move = games[i]
-        return best_score, best_move
+            if this_move_result > top_result:
+                top_result = this_move_result
+                top_move = games[i]
+        if top_result == 0:
+            top_move = random.choice(games)
 
+        return top_move
 
-    #This function scans the change a move makes to the player's score (the one making said move)
-    #Taking some inspiration from alignment function in game.py
-    def calc_change(self, state, move):
-        x = move[0]
-        y = move[1]
+    def calc_change(self, state, x, y):
         score = 0
         #Check horizontal
         right_count = x + 1
