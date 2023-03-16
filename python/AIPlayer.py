@@ -1,4 +1,10 @@
-import copy 
+##################################
+## CS4386 Semester B, 2022-2023
+## Assignment 1
+## Name: Maksim Samokhvalov
+## Student ID: 40144120
+##################################
+import copy
 from math import inf as infinity
 import random
 class AIPlayer(object):
@@ -34,4 +40,5 @@ class AIPlayer(object):
     def get_move(self,state,player):
         games = self.available_cells(state,player)
         random_move=random.choice(games)
+        print(state)
         return random_move   
