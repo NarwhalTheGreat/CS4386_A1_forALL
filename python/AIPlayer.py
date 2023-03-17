@@ -4,6 +4,7 @@
 ## Name: Maksim Samokhvalov
 ## Student ID: 40144120
 ##################################
+import os, psutil
 import copy
 from math import inf as infinity
 import random
@@ -48,13 +49,15 @@ class AIPlayer(object):
         return cells
 
     def get_move(self, state, player):
+
         #best_move = self.get_best_move(player, state)
         best_move = [0, 0]
         best_score, best_move = self.negamax(state, player, 0, 0, 4)
         print(best_move)
-
+        print(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
         return best_move
 
+    #performs negamax search for the move that scores the highest result for the starting player
     def negamax(self, board, player_symbol, score, current_depth, max_depth):
         #calculate possible moves
         games = self.get_valid_moves(self.available_cells(board, player_symbol), player_symbol)
