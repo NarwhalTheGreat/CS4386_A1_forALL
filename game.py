@@ -201,7 +201,6 @@ def gameLoop(screen, p1, p2):
             elif p2_language=="PYTHON":
                 tic = time.time()
                 move = playerTurn.get_move(grid.grid, playerTurn.get_symbole())
-                print(grid)
                 x, y = move[0], move[1]
                 toc = time.time()
                 # Check if the cell is available

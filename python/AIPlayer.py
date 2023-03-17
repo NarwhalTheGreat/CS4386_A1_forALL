@@ -48,24 +48,65 @@ class AIPlayer(object):
         return cells
 
     def get_move(self, state, player):
-        print(player)
+        #best_move = self.get_best_move(player, state)
+        best_move = [0, 0]
+        best_score, best_move = self.negamax(state, player, 0, 0, 4)
+        print(best_move)
+
+        return best_move
+
+    def negamax(self, board, player_symbol, score, current_depth, max_depth):
+        #calculate possible moves
+        games = self.get_valid_moves(self.available_cells(board, player_symbol), player_symbol)
+        if ((current_depth == max_depth) or (len(games) == 0)):
+            return score, None
+
+        best_score = -infinity
+        best_move = None
+
+        if player_symbol == "X":
+            player_symbol_next = "O"
+        else:
+            player_symbol_next = "X"
+
+        for move in games:
+            new_score = score + self.calc_change(board, move)
+            new_board = board
+            new_board[move[0], move[1]] = player_symbol
+
+            recursed_score, recursed_move = self.negamax(new_board, player_symbol_next, -new_score, (current_depth + 1), max_depth)
+
+            new_board[move[0], move[1]] = None
+            current_score = -recursed_score
+
+
+            if current_score > best_score:
+                best_score = current_score
+                best_move = move
+
+        return best_score, best_move
+
+    #Returns best possible move given board and the player moving next.
+    #Assumes there is at least 1 possible move
+    #If all moves are equally good, returns a random move among the possible options
+    def get_best_move(self, player, state):
         games = self.get_valid_moves(self.available_cells(state, player), player)
-        top_result = 0
-        top_move = [0, 0]
+        best_result = 0
+        best_move = [0, 0]
         for i in range(len(games)):
-            this_move_result = self.calc_change(state, games[i][0], games[i][1])
-            print(games[i][0], games[i][1])
-            print(this_move_result)
+            this_move_result = self.calc_change(state, games[i])
 
-            if this_move_result > top_result:
-                top_result = this_move_result
-                top_move = games[i]
-        if top_result == 0:
-            top_move = random.choice(games)
+            if this_move_result > best_result:
+                best_result = this_move_result
+                best_move = games[i]
+        if best_result == 0:
+            best_move = random.choice(games)
+        return best_move
 
-        return top_move
-
-    def calc_change(self, state, x, y):
+    #Calculates change this move has on score, assumes player making this move is allowed to do so
+    def calc_change(self, state, move):
+        x = move[0]
+        y = move[1]
         score = 0
         #Check horizontal
         right_count = x + 1
@@ -83,9 +124,9 @@ class AIPlayer(object):
                 hor_streak += 1
             else:
                 break
-        if hor_streak == 6:
+        if hor_streak == 5:
             score += 6
-        elif hor_streak > 2:
+        elif hor_streak > 1:
             score += 3
 
         # Check vertical
