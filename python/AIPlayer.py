@@ -4,7 +4,6 @@
 ## Name: Maksim Samokhvalov
 ## Student ID: 40144120
 ##################################
-import os, psutil
 import copy
 from math import inf as infinity
 import random
@@ -49,49 +48,55 @@ class AIPlayer(object):
         return cells
 
     def get_move(self, state, player):
-
-        #best_move = self.get_best_move(player, state)
-        best_move = [0, 0]
-        best_score, best_move = self.negamax(state, player, 0, 0, 4)
+        best_score, best_move = self.abnegamax(state, player, 0, 0, 6, -infinity, infinity)
         print(best_move)
-        print(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
         return best_move
 
-    #performs negamax search for the move that scores the highest result for the starting player
-    def negamax(self, board, player_symbol, score, current_depth, max_depth):
+    #performs negamax search for move that scores the highest result for the starting player with Alpha-Beta Pruning
+    def abnegamax(self, board, player_symbol, score, current_depth, max_depth, alpha, beta):
         #calculate possible moves
         games = self.get_valid_moves(self.available_cells(board, player_symbol), player_symbol)
+        #check if game is over (no moves left) or max depth is reached. if so, bubble up.
         if ((current_depth == max_depth) or (len(games) == 0)):
             return score, None
-
+        #set up best score and placeholder for best move
         best_score = -infinity
         best_move = None
-
+        #flip player for the next move
         if player_symbol == "X":
             player_symbol_next = "O"
         else:
             player_symbol_next = "X"
-
+        #Iterate through each possible move
         for move in games:
+            #simulate this move, calculate its score and effect on the board state
             new_score = score + self.calc_change(board, move)
             new_board = board
             new_board[move[0], move[1]] = player_symbol
-
-            recursed_score, recursed_move = self.negamax(new_board, player_symbol_next, -new_score, (current_depth + 1), max_depth)
-
+            #start recursion after this move
+            recursed_score, recursed_move = self.abnegamax(new_board, player_symbol_next, -new_score, (current_depth + 1),
+                                                           max_depth, -beta, -max(alpha, best_score))
+            #reset board (had a weird bug)
             new_board[move[0], move[1]] = None
+
+            #inverse score to account for alternating
             current_score = -recursed_score
 
-
+            #record best score if found
             if current_score > best_score:
                 best_score = current_score
                 best_move = move
+                #prune unfavourable branch
+                if best_score >= beta:
+                    return best_score, best_move
 
         return best_score, best_move
 
     #Returns best possible move given board and the player moving next.
     #Assumes there is at least 1 possible move
     #If all moves are equally good, returns a random move among the possible options
+    #Hand made for testing purposes
+    #                    NOT USED IN FINAL (abnegamax) IMPLEMENTATION
     def get_best_move(self, player, state):
         games = self.get_valid_moves(self.available_cells(state, player), player)
         best_result = 0
