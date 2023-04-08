@@ -49,7 +49,6 @@ class AIPlayer(object):
 
     def get_move(self, state, player):
         best_score, best_move = self.abnegamax(state, player, 0, 0, 6, -infinity, infinity)
-        print(best_move)
         return best_move
 
     #performs negamax search for move that scores the highest result for the starting player with Alpha-Beta Pruning
